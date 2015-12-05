@@ -20,8 +20,10 @@
 
 - (NSString *) compressLZ;
 - (NSString *) compressLZToUTF16;
+- (NSString*) encode64;
 
 - (NSString *) decompressLZ;
 - (NSString *) decompressLZFromUTF16;
+- (NSString*)  decode64;
 
 @end

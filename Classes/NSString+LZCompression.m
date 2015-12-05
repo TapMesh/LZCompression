@@ -447,4 +447,121 @@
     return [output decompressLZ];
 }
 
+-(NSString*) encode64{
+    NSString* keyStr = @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    NSString* input = self;
+    NSMutableString* result = [NSMutableString stringWithCapacity:([input length]*8+1)/3];
+    unichar uchar;
+    for (NSUInteger i = 0, max = [input length] << 1; i < max; ) {
+        NSUInteger left = max - i;
+        if (left >= 3) {
+            int ch1 = ([input characterAtIndex:i >> 1] >> ((1 - (i & 1)) << 3)) & 0xff;
+            i++;
+            int ch2 = ([input characterAtIndex:i >> 1] >> ((1 - (i & 1)) << 3)) & 0xff;
+            i++;
+            int ch3 = ([input characterAtIndex:i >> 1] >> ((1 - (i & 1)) << 3)) & 0xff;
+            i++;
+            uchar = [keyStr characterAtIndex:(ch1 >> 2) & 0x3f];
+            [result appendString:[NSString stringWithCharacters:&uchar length:1]];
+            
+            uchar = [keyStr characterAtIndex:((ch1 << 4) + (ch2 >> 4)) & 0x3f];
+            [result appendString:[NSString stringWithCharacters:&uchar length:1]];
+            
+            uchar = [keyStr characterAtIndex:((ch2 << 2) + (ch3 >> 6)) & 0x3f];
+            [result appendString:[NSString stringWithCharacters:&uchar length:1]];
+            
+            uchar = [keyStr characterAtIndex:ch3 & 0x3f];
+            [result appendString:[NSString stringWithCharacters:&uchar length:1]];
+        } else if (left == 2) {
+            int ch1 = ([input characterAtIndex:i >> 1] >> ((1 - (i & 1)) << 3)) & 0xff;
+            i++;
+            int ch2 = ([input characterAtIndex:i >> 1] >> ((1 - (i & 1)) << 3)) & 0xff;
+            i++;
+            
+            uchar = [keyStr characterAtIndex:(ch1 >> 2) & 0x3f];
+            [result appendString:[NSString stringWithCharacters:&uchar length:1]];
+            
+            uchar = [keyStr characterAtIndex:((ch1 << 4) + (ch2 >> 4)) & 0x3f];
+            [result appendString:[NSString stringWithCharacters:&uchar length:1]];
+            
+            uchar = [keyStr characterAtIndex:((ch2 << 2)) & 0x3f];
+            [result appendString:[NSString stringWithCharacters:&uchar length:1]];
+            
+            [result appendString:@"="];
+        } else if (left == 1) {
+            int ch1 = ([input characterAtIndex:i >> 1] >> ((1 - (i & 1)) << 3)) & 0xff;
+            i++;
+            
+            uchar = [keyStr characterAtIndex:(ch1 >> 2) & 0x3f];
+            [result appendString:[NSString stringWithCharacters:&uchar length:1]];
+            
+            uchar = [keyStr characterAtIndex:((ch1 << 4)) & 0x3f];
+            [result appendString:[NSString stringWithCharacters:&uchar length:1]];
+            [result appendString:@"="];
+            [result appendString:@"="];
+        }
+    }
+    return result;
+}
+
+-(NSString*) decode64 {
+    //TODO: Check if input is a valid base64 encoding. Currently it crashes when called on a string which is not
+    // base64 encoded by function above.
+    NSString* input = self;
+    NSMutableString* str = [NSMutableString stringWithCapacity:200];
+    NSString* keyStr = @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    unichar uchar;
+    int ol = 0;
+    NSUInteger output_ = 0;
+    NSUInteger chr1, chr2, chr3;
+    NSUInteger enc1, enc2, enc3, enc4;
+    int i = 0;
+    //int j = 0;
+    
+    while (i < [input length]) {
+        
+        uchar = [input characterAtIndex:i++];
+        enc1 = [keyStr rangeOfString:[NSString stringWithCharacters:&uchar length:1]].location;
+        
+        uchar = [input characterAtIndex:i++];
+        enc2 = [keyStr rangeOfString:[NSString stringWithCharacters:&uchar length:1]].location;
+        
+        uchar = [input characterAtIndex:i++];
+        enc3 = [keyStr rangeOfString:[NSString stringWithCharacters:&uchar length:1]].location;
+        
+        uchar = [input characterAtIndex:i++];
+        enc4 = [keyStr rangeOfString:[NSString stringWithCharacters:&uchar length:1]].location;
+        
+        chr1 = (enc1 << 2) | (enc2 >> 4);
+        chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+        chr3 = ((enc3 & 3) << 6) | enc4;
+        
+        if (ol % 2 == 0) {
+            output_ = chr1 << 8;
+            
+            if (enc3 != 64) {
+                uchar = (unichar) (output_ | chr2);
+                [str appendString:[ NSString stringWithCharacters:&uchar length:1] ];
+            }
+            if (enc4 != 64) {
+                output_ = chr3 << 8;
+            }
+        } else {
+            uchar = (unichar) (output_ | chr1);
+            [str appendString:[ NSString stringWithCharacters:&uchar length:1]];
+            
+            if (enc3 != 64) {
+                output_ = chr2 << 8;
+            }
+            if (enc4 != 64) {
+                uchar = (unichar) (output_ | chr3);
+                [str appendString:[ NSString stringWithCharacters:&uchar length:1]];
+            }
+        }
+        ol += 3;
+    }
+    
+    return str;
+}
+
 @end
