@@ -447,9 +447,9 @@
     return [output decompressLZ];
 }
 
--(NSString*) encode64{
+-(NSString*) compressToBase64{
     NSString* keyStr = @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-    NSString* input = self;
+    NSString* input = [self compressLZ];
     NSMutableString* result = [NSMutableString stringWithCapacity:([input length]*8+1)/3];
     unichar uchar;
     for (NSUInteger i = 0, max = [input length] << 1; i < max; ) {
@@ -504,7 +504,7 @@
     return result;
 }
 
--(NSString*) decode64 {
+-(NSString*) decompressFromBase64 {
     //TODO: Check if input is a valid base64 encoding. Currently it crashes when called on a string which is not
     // base64 encoded by function above.
     NSString* input = self;
@@ -561,7 +561,7 @@
         ol += 3;
     }
     
-    return str;
+    return [str decompressLZ];
 }
 
 @end
