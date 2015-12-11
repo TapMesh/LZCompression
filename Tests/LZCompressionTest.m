@@ -124,43 +124,42 @@
 
 - (void)testBasicEncoding {
     NSString *input = @"Test of a short string";
-    NSString *lzCompressedInput = [[input compressLZ] encode64];
+    NSString *lzCompressedInput = [input compressToBase64];
     
-    NSString *output = [[lzCompressedInput decode64] decompressLZ];
+    NSString *output = [lzCompressedInput decompressFromBase64];
     XCTAssert([input isEqualToString:output], @"Input should equal output");
 }
 
 - (void)testEmptyEncoding {
     NSString *input = @"";
-    NSString *lzCompressedInput = [[input compressLZ] encode64];
+    NSString *lzCompressedInput = [input compressToBase64];
     
-    NSString *output = [[lzCompressedInput decode64] decompressLZ];
+    NSString *output = [lzCompressedInput decompressFromBase64];
     XCTAssert([input isEqualToString:output], @"Input should equal output");
 }
 
 - (void)testLongEncoding {
     NSString *input = @"Test of a long string with a lot of repeated a lot of repeated a lot of repeated a lot of repeated a lot of repeated a lot of repeated a lot of repeated a lot of repeated a lot of repeated a lot of repeated a lot of repeated stuff which should compress quite nicely given the lof of repeated a lot of repeated a lot of repeated stuff.";
-    NSString *lzCompressedInput = [[input compressLZ] encode64];
+    NSString *lzCompressedInput = [input compressToBase64];
     
-    NSString *output = [[lzCompressedInput decode64] decompressLZ];
+    NSString *output = [lzCompressedInput decompressFromBase64];
     XCTAssert([input isEqualToString:output], @"Input should equal output");
 }
 
 - (void)testJSONEncoding {
     NSString *input = @"{\"pendingUpdates\":false,\"cachedMessageCounter\":10,\"members\":{\"smith\":\"John Smith\",\"bobwieler\":\"Bobby Wieler\"},\"lastMessageTime\":\"2015-03-23T11:07:52.189-0400\",\"lastNotification\":\"Bobby Wieler: As well. \",\"eventCount\":0,\"temporaryMembers\":[],\"pushNotifications\":true,\"mojo\":\"CE7F16CE-0002-4838-A453-D677C4F33251\",\"temporaryCards\":[],\"messageCounter\":10,\"membersData\":{\"smith\":{\"firstName\":\"John\",\"name\":\"John Smith\",\"lastName\":\"Smith\"},\"bobwieler\":{\"firstName\":\"Bobby\",\"name\":\"Bobby Wieler\",\"lastName\":\"Wieler\"}},\"cards\":[]}";
-    NSString *lzCompressedInput = [[input compressLZ] encode64];
+    NSString *lzCompressedInput = [input compressToBase64];
     
-    NSString *output = [[lzCompressedInput decode64] decompressLZ];
+    NSString *output = [lzCompressedInput decompressFromBase64];
     XCTAssert([input isEqualToString:output], @"Input should equal output");
 }
 
 - (void)testEncodingSpeed {
     NSUInteger iterations = 500;
     NSString *input = @"{\"pendingUpdates\":false,\"cachedMessageCounter\":10,\"members\":{\"smith\":\"John Smith\",\"bobwieler\":\"Bobby Wieler\"},\"lastMessageTime\":\"2015-03-23T11:07:52.189-0400\",\"lastNotification\":\"Bobby Wieler: As well. \",\"eventCount\":0,\"temporaryMembers\":[],\"pushNotifications\":true,\"mojo\":\"CE7F16CE-0002-4838-A453-D677C4F33251\",\"temporaryCards\":[],\"messageCounter\":10,\"membersData\":{\"smith\":{\"firstName\":\"John\",\"name\":\"John Smith\",\"lastName\":\"Smith\"},\"bobwieler\":{\"firstName\":\"Bobby\",\"name\":\"Bobby Wieler\",\"lastName\":\"Wieler\"}},\"cards\":[]}";
-    NSString* compressed = [input compressLZ];
     [self measureBlock:^{
         for (NSUInteger i = 0; i < iterations; i++) {
-            [compressed encode64];
+            [input compressToBase64];
         }
     }];
 }
