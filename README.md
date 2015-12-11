@@ -26,3 +26,7 @@ NSString *output = [lzCompressedInput decompressLZ];
 NSString *outputFromCompressedBase64 = [lzCompressedInputBase64Coded decompressFromBase64];
 NSString *outputFromUTF16 = [lzCompressedUTF16Input decompressLZFromUTF16];
 ```
+
+## Credits
+
+A big thanks to [Saumitra Bhave](https://github.com/saumitrabhave) for implementing additional functionality from the original implementation.
