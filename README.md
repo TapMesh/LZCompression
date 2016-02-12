@@ -2,7 +2,7 @@
 An Objective-C implementation of lz-string for Javascript [http://pieroxy.net/blog/pages/lz-string/index.html](http://pieroxy.net/blog/pages/lz-string/index.html)
 
 # Installation
-## Cocoapods
+## CocoaPods
 
 ```
 pod 'LZCompression'
